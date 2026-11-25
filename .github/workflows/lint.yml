@@ -1,0 +1,16 @@
+name: lint
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      # TODO: pin both actions to full commit SHAs before the first push
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - name: shellcheck
+        run: shellcheck */*.sh
+      - name: yamllint
+        run: pipx run yamllint .
