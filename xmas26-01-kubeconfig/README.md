@@ -13,7 +13,7 @@ The cluster is fine. `localhost:8080` is kubectl's fallback when it finds **no k
 
 ```bash
 ./setup.sh                                 # kind cluster "sleigh-prod" (shared by all XMAS26 labs)
-docker exec -it sleigh-prod-control-plane bash
+docker exec -it -e KUBECONFIG= sleigh-prod-control-plane bash   # a clean shell, no kubeconfig
 kubectl get pods -n reindeer               # -> localhost:8080 refused
 ```
 
@@ -29,7 +29,7 @@ kubectl get pods -n reindeer               # -> localhost:8080 refused
 
 ```bash
 export KUBECONFIG=/etc/kubernetes/admin.conf   # kubeadm control plane
-kubectl config get-contexts                     # * sleigh-staging
+kubectl config get-contexts                     # * sleigh-staging (an unreachable cluster)
 kubectl config use-context sleigh-prod
 kubectl get pods -n reindeer
 ```

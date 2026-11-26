@@ -18,12 +18,21 @@ docker exec "$NODE" bash -c '
   set -e
   rm -f /root/.kube/config
   export KUBECONFIG=/etc/kubernetes/admin.conf
-  if kubectl config get-contexts -o name | grep -qx kubernetes-admin@kubernetes; then
-    kubectl config rename-context kubernetes-admin@kubernetes sleigh-prod >/dev/null
+  # kind names the admin context after the cluster (kubernetes-admin@sleigh-prod);
+  # older images use kubernetes-admin@kubernetes. Rename whatever it is to sleigh-prod.
+  if ! kubectl config get-contexts -o name | grep -qx sleigh-prod; then
+    admin=$(kubectl config get-contexts -o name | grep -vx sleigh-staging | head -1)
+    kubectl config rename-context "$admin" sleigh-prod >/dev/null
   fi
-  kubectl config set-context sleigh-staging --cluster=kubernetes --user=kubernetes-admin --namespace=default >/dev/null
+  # sleigh-staging: a second, unreachable cluster, so the context choice matters
+  kubectl config set-cluster sleigh-staging --server=https://10.0.0.20:6443 --insecure-skip-tls-verify=true >/dev/null
+  user=$(kubectl config view -o jsonpath="{.contexts[?(@.name==\"sleigh-prod\")].context.user}")
+  kubectl config set-context sleigh-staging --cluster=sleigh-staging --user="$user" --namespace=default >/dev/null
   kubectl config use-context sleigh-staging >/dev/null
 '
+if docker exec "$NODE" printenv KUBECONFIG >/dev/null 2>&1; then
+  echo "⚠ the node image sets KUBECONFIG — start the shell with: docker exec -it -e KUBECONFIG= $NODE bash"
+fi
 ok "Ready. Open a shell on the control plane and start the task:"
-echo "  docker exec -it $NODE bash"
+echo "  docker exec -it -e KUBECONFIG= $NODE bash"
 echo "  kubectl get pods -n reindeer"
