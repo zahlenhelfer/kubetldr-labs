@@ -1,4 +1,4 @@
-# Ada's lockdown: only the database is allowed (bug included)
+# The lockdown: only the database is allowed (bug included)
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:

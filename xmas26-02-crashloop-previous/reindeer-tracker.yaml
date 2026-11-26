@@ -21,7 +21,7 @@ spec:
             - |
               echo "starting reindeer-tracker v1.4 … syncing sleigh position"
               # the app runs a while before it needs the route API
-              sleep "${CRASH_AFTER:-20}"
+              sleep "${CRASH_AFTER:-30}"
               if [ -z "${ROUTE_API_URL:-}" ]; then
                 echo "FATAL: env ROUTE_API_URL not set – cannot sync sleigh position"
                 exit 1
