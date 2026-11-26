@@ -1,0 +1,14 @@
+# The lockdown: only the database is allowed (bug included)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: lockdown
+  namespace: route-planner
+spec:
+  podSelector: {}
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - podSelector: {matchLabels: {app: route-db}}
+      ports:
+        - {protocol: TCP, port: 5432}

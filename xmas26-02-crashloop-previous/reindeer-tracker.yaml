@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reindeer-tracker
+  namespace: reindeer
+  labels: {app: reindeer-tracker}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: reindeer-tracker}
+  template:
+    metadata:
+      labels: {app: reindeer-tracker}
+    spec:
+      containers:
+        - name: tracker
+          image: busybox:1.37
+          command:
+            - sh
+            - -c
+            - |
+              echo "starting reindeer-tracker v1.4 … syncing sleigh position"
+              # the app runs a while before it needs the route API
+              sleep "${CRASH_AFTER:-30}"
+              if [ -z "${ROUTE_API_URL:-}" ]; then
+                echo "FATAL: env ROUTE_API_URL not set – cannot sync sleigh position"
+                exit 1
+              fi
+              echo "route api: ${ROUTE_API_URL} – sleigh position synced"
+              while true; do sleep 3600; done
