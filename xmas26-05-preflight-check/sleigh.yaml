@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: sleigh
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sleigh-nav
+  namespace: sleigh
+spec:
+  replicas: 2
+  selector:
+    matchLabels: {app: sleigh-nav}
+  template:
+    metadata:
+      labels: {app: sleigh-nav}
+    spec:
+      containers:
+        - name: nav
+          image: registry.k8s.io/pause:3.10
+---
+# A finished Job: its pod is Succeeded. Shows why the field selector needs
+# BOTH conditions — plain status.phase!=Running would list it.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: load-gifts
+  namespace: sleigh
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: load
+          image: busybox:1.37
+          command: ["sh", "-c", "echo 'all gifts loaded'"]
