@@ -55,3 +55,21 @@ CFG
   fi
   kubectl config use-context "$CLUSTER" >/dev/null
 }
+
+# Fail early on kind versions whose default CNI does not enforce NetworkPolicies (kindnet: since v0.24).
+require_kind_netpol() {
+  local minor
+  minor=$(kind version 2>/dev/null | sed -n 's/^kind v0\.\([0-9]*\)\..*/\1/p')
+  [ -n "$minor" ] || fail "could not read 'kind version'"
+  [ "$minor" -ge 24 ] || fail "kind $(kind version | cut -d' ' -f2) does not enforce NetworkPolicies — use kind >= v0.24"
+}
+
+# wait_for_log <namespace> <deployment> <pattern> [timeout-seconds]
+# Polls the last log line instead of a fixed sleep (one app loop can take ~10 s).
+wait_for_log() {
+  local ns=$1 deploy=$2 pattern=$3 timeout=${4:-60} waited=0
+  until kubectl -n "$ns" logs "deploy/$deploy" --tail=1 2>/dev/null | grep -q "$pattern"; do
+    [ "$waited" -ge "$timeout" ] && return 1
+    sleep 3; waited=$((waited + 3))
+  done
+}
