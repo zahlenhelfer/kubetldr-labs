@@ -86,6 +86,7 @@ spec:
             - -c
             - |
               while true; do
-                psql -h sleigh-db -U postgres -tAc "select 'sleigh-db ok'" 2>&1
+                psql -h sleigh-db -U postgres -tAc "select 'sleigh-db ok'" 2>&1 \
+                  | sed -e 's/^psql: error: //' -e 's/ to address.*//'
                 sleep 5
               done

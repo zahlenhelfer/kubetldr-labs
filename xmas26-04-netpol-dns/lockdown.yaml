@@ -8,7 +8,10 @@ spec:
   podSelector: {}
   policyTypes: [Egress]
   egress:
-    - to:
-        - podSelector: {matchLabels: {tier: sleigh}}
-      ports:
-        - {protocol: TCP, port: 5432}
+  - to:
+    - podSelector:
+        matchLabels:
+          tier: sleigh
+    ports:
+    - protocol: TCP
+      port: 5432

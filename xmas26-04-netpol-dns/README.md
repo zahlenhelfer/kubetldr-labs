@@ -3,7 +3,7 @@
 Santa fenced in the `paddock` namespace: a NetworkPolicy allows egress only to the sleighs (two Postgres databases), port 5432. The `reindeer` app asks for its sleigh by name — `sleigh-db` is running, the port is allowed, so it should work. And the app logs:
 
 ```
-psql: error: could not translate host name "sleigh-db" to address: Try again
+could not translate host name "sleigh-db"
 ```
 
 - Short: <!-- TODO: YouTube link -->
@@ -17,6 +17,8 @@ Requires NetworkPolicy enforcement — kind's default CNI (kindnet) enforces it 
 ```
 
 **Task:** fix the policy (keep the lockdown!) so `reindeer` reaches `sleigh-db` by name. Then `./verify.sh`.
+
+The app logs psql's message without the `psql: error:` prefix and the `to address: …` tail (the full text is `could not translate host name "sleigh-db" to address: Try again`).
 
 | In the short | In the cluster |
 |---|---|
@@ -41,12 +43,18 @@ kubectl -n paddock exec deploy/reindeer -- pg_isready -h sleigh-db
 Egress to CoreDNS is blocked. Add a second egress rule — both selectors in **one** list item = AND:
 
 ```yaml
-    - to:
-        - namespaceSelector: {matchLabels: {kubernetes.io/metadata.name: kube-system}}
-          podSelector: {matchLabels: {k8s-app: kube-dns}}
-      ports:
-        - {protocol: UDP, port: 53}
-        - {protocol: TCP, port: 53}
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: kube-system
+      podSelector:
+        matchLabels:
+          k8s-app: kube-dns
+    ports:
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 53
 ```
 
 Full policy: [`lockdown-fixed.yaml`](lockdown-fixed.yaml) → `kubectl apply -f lockdown-fixed.yaml`
