@@ -2,17 +2,17 @@
 # Shared helper for the XMAS26 labs: one kind cluster "sleigh-prod"
 # (1 control plane + 2 workers), context renamed to "sleigh-prod".
 # Source it from a lab script:  . "$(dirname "$0")/../xmas26-common/cluster.sh"
-# Override: CLUSTER, NODE_IMAGE (e.g. kindest/node:v1.35.0), WORKER_CPUS (default 2).
+# Override: CLUSTER, NODE_IMAGE (e.g. kindest/node:v1.35.0), WORKER_CPUS (default 4).
 
 CLUSTER=${CLUSTER:-sleigh-prod}
-WORKER_CPUS=${WORKER_CPUS:-2}
+WORKER_CPUS=${WORKER_CPUS:-4}
 
 step() { printf '\n\033[1;34m### %s\033[0m\n' "$*"; }
 ok()   { printf '\033[1;32m✔ %s\033[0m\n' "$*"; }
 fail() { printf '\033[1;31m✘ %s\033[0m\n' "$*"; exit 1; }
 
-# kind nodes see all host CPUs. To make the workers look like 2-CPU machines
-# (XMAS26 3/5), reserve the rest via the kubelet's --system-reserved.
+# kind nodes see all host CPUs. To make the workers look like 4-CPU machines
+# (XMAS26 3/5: one workbench = 4 stools = 4 CPUs), reserve the rest via the kubelet's --system-reserved.
 _reserved_cpus() {
   local host
   host=$(docker info --format '{{.NCPU}}' 2>/dev/null || nproc)

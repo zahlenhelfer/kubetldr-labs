@@ -1,0 +1,21 @@
+# gift-wrapper: books most of every workbench, but does nothing (pause image).
+# setup.sh fills in the CPU request so that each worker keeps ~1.2 of its 4 CPUs free:
+# one more CPU fits, two don't.
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: gift-wrapper
+  namespace: workshop
+spec:
+  selector:
+    matchLabels: {app: gift-wrapper}
+  template:
+    metadata:
+      labels: {app: gift-wrapper}
+    spec:
+      containers:
+        - name: wrapper
+          image: registry.k8s.io/pause:3.10
+          resources:
+            requests:
+              cpu: __WRAP_CPU__
