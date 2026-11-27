@@ -8,6 +8,10 @@ ensure_cluster
 
 step "Deploy reindeer-tracker (crashes ~30 s after start: ROUTE_API_URL missing)"
 kubectl create namespace reindeer --dry-run=client -o yaml | kubectl apply -f -
+# start from a clean, broken deployment: a previous run may have fixed it with `kubectl set env`,
+# and `kubectl apply` would keep that extra env var
+kubectl -n reindeer delete deployment reindeer-tracker --ignore-not-found --wait=true
+kubectl -n reindeer wait --for=delete pod -l app=reindeer-tracker --timeout=60s 2>/dev/null || true
 kubectl apply -f reindeer-tracker.yaml
 
 # Plain `kubectl logs` shows the CURRENT container. While the pod waits in
