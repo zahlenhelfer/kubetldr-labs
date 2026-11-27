@@ -1,0 +1,20 @@
+# toy-painter: asks for 2 CPUs (two stools), really needs one.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: toy-painter
+  namespace: workshop
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: toy-painter}
+  template:
+    metadata:
+      labels: {app: toy-painter}
+    spec:
+      containers:
+        - name: painter
+          image: registry.k8s.io/pause:3.10
+          resources:
+            requests:
+              cpu: "2"

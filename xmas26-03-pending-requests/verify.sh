@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -uo pipefail
-if kubectl -n route-planner rollout status deploy/route-optimizer --timeout=60s >/dev/null; then
-  echo "✔ route-optimizer scheduled and running"
+if kubectl -n workshop rollout status deploy/toy-painter --timeout=60s >/dev/null; then
+  req=$(kubectl -n workshop get deploy toy-painter -o jsonpath='{.spec.template.spec.containers[0].resources.requests.cpu}')
+  echo "✔ toy-painter scheduled and running (cpu request: $req)"
 else
-  echo "✘ still Pending"; kubectl -n route-planner get pods; exit 1
+  echo "✘ still Pending"; kubectl -n workshop get pods; exit 1
 fi
